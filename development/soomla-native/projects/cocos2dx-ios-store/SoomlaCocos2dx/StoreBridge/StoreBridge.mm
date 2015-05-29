@@ -498,11 +498,11 @@
 
     [ndkGlue registerCallbackHandlerForKey:EVENT_MARKET_PURCHASED withBlock:^(NSNotification *notification, NSMutableDictionary *parameters) {
         PurchasableVirtualItem* pvi = (PurchasableVirtualItem*)[notification.userInfo objectForKey:DICT_ELEMENT_PURCHASABLE];
-        NSString* purchaseToken = [notification.userInfo objectForKey:DICT_ELEMENT_TOKEN];
+        NSDictionary* extraInfo = [notification.userInfo objectForKey:DICT_ELEMENT_EXTRA_INFO];
         [parameters setObject:@"CCStoreEventHandler::onMarketPurchase" forKey:@"method"];
         [parameters setObject:[pvi itemId] forKey:@"itemId"];
         [parameters setObject:@"[iOS Purchase no payload]" forKey:@"payload"];
-        [parameters setObject:purchaseToken forKey:@"token"];
+        [parameters setObject:extraInfo forKey:@"extra"];
     }];
 
     [ndkGlue registerCallbackHandlerForKey:EVENT_MARKET_PURCHASE_STARTED withBlock:^(NSNotification *notification, NSMutableDictionary *parameters) {

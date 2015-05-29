@@ -68,7 +68,7 @@ public class StoreEventHandlerBridge {
             }
         });
     }
-	
+
     @Subscribe
     public void onIabServiceStarted(IabServiceStartedEvent iabServiceStartedEvent) {
         mGLThread.queueEvent(new Runnable() {
@@ -84,7 +84,7 @@ public class StoreEventHandlerBridge {
             }
         });
     }
-	
+
     @Subscribe
     public void onIabServiceStopped(IabServiceStoppedEvent iabServiceStoppedEvent) {
         mGLThread.queueEvent(new Runnable() {
@@ -256,12 +256,9 @@ public class StoreEventHandlerBridge {
                 try {
                     JSONObject parameters = new JSONObject();
                     parameters.put("method", "CCStoreEventHandler::onMarketPurchase");
-                    parameters.put("itemId", marketPurchaseEvent.getPurchasableVirtualItem().getItemId());
-                    parameters.put("payload", marketPurchaseEvent.getPayload());
-                    parameters.put("token", marketPurchaseEvent.getToken());
-                    parameters.put("originalJson", marketPurchaseEvent.getOriginalJson());
-                    parameters.put("signature", marketPurchaseEvent.getSignature());
-                    parameters.put("userId", marketPurchaseEvent.getUserId());
+                    parameters.put("itemId", marketPurchaseEvent.PurchasableVirtualItem);
+                    parameters.put("payload", marketPurchaseEvent.Payload);
+                    parameters.put("extra", marketPurchaseEvent.ExtraInfo);
                     NdkGlue.getInstance().sendMessageWithParameters(parameters);
                 } catch (JSONException e) {
                     throw new IllegalStateException(e);
