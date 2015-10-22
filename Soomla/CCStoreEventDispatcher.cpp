@@ -83,9 +83,9 @@ namespace soomla {
 
         eventDispatcher->registerEventHandler(CCStoreConsts::EVENT_RESTORE_TRANSACTION_STARTED,
                 this, (SEL_EventHandler) (&CCStoreEventDispatcher::handle__EVENT_RESTORE_TRANSACTION_STARTED));
-
-        eventDispatcher->registerEventHandler(CCStoreConsts::EVENT_UNEXPECTED_ERROR_IN_STORE,
-                this, (SEL_EventHandler) (&CCStoreEventDispatcher::handle__EVENT_UNEXPECTED_ERROR_IN_STORE));
+        
+        eventDispatcher->registerEventHandler(CCStoreConsts::EVENT_UNEXPECTED_STORE_ERROR,
+                this, (SEL_EventHandler) (&CCStoreEventDispatcher::handle__EVENT_ON_UNEXPECTED_STORE_ERROR));
 
         eventDispatcher->registerEventHandler(CCStoreConsts::EVENT_SOOMLA_STORE_INITIALIZED,
                 this, (SEL_EventHandler) (&CCStoreEventDispatcher::handle__EVENT_STORE_CONTROLLER_INITIALIZED));
@@ -218,24 +218,13 @@ namespace soomla {
         CCNotificationCenter::sharedNotificationCenter()->postNotification(CCStoreConsts::EVENT_MARKET_PURCHASE_CANCELED, eventDict);
     }
 
-    void CCStoreEventDispatcher::onMarketPurchase(CCPurchasableVirtualItem *purchasableVirtualItem, cocos2d::CCString *token, cocos2d::CCString *payload, cocos2d::CCString *originalJson,
-                                                  cocos2d::CCString *signature, cocos2d::CCString *userId) {
+    void CCStoreEventDispatcher::onMarketPurchase(CCPurchasableVirtualItem *purchasableVirtualItem, cocos2d::CCString *payload, cocos2d::CCDictionary *extraInfo) {
+
         CCDictionary *eventDict = CCDictionary::create();
         eventDict->setObject(purchasableVirtualItem, CCStoreConsts::DICT_ELEMENT_PURCHASABLE);
-        eventDict->setObject(token, CCStoreConsts::DICT_ELEMENT_TOKEN);
         eventDict->setObject(payload, CCStoreConsts::DICT_ELEMENT_DEVELOPERPAYLOAD);
-        if (originalJson != NULL) {
-            eventDict->setObject(originalJson, CCStoreConsts::DICT_ELEMENT_ORIGINAL_JSON);
-        }
-        
-        if (signature != NULL) {
-            eventDict->setObject(signature, CCStoreConsts::DICT_ELEMENT_SIGNATURE);
-        }
-        
-        if (userId != NULL) {
-            eventDict->setObject(userId, CCStoreConsts::DICT_ELEMENT_USER_ID);
-        }
-        
+        eventDict->setObject(extraInfo, CCStoreConsts::DICT_ELEMENT_EXTRA_INFO);
+
         CCNotificationCenter::sharedNotificationCenter()->postNotification(CCStoreConsts::EVENT_MARKET_PURCHASE, eventDict);
     }
 
@@ -264,29 +253,25 @@ namespace soomla {
         CCNotificationCenter::sharedNotificationCenter()->postNotification(CCStoreConsts::EVENT_RESTORE_TRANSACTION_STARTED);
     }
 
-    void CCStoreEventDispatcher::onUnexpectedErrorInStore(cocos2d::CCString *errorMessage) {
-        onUnexpectedErrorInStore(errorMessage, false);
+    void CCStoreEventDispatcher::onUnexpectedStoreError(cocos2d::CCInteger *errorCode) {
+        onUnexpectedStoreError(errorCode, false);
     }
 
-    void CCStoreEventDispatcher::onUnexpectedErrorInStore(cocos2d::CCString *errorMessage, bool alsoPush) {
-        if (errorMessage == NULL) {
-            errorMessage = CCString::create("");
-        }
-        
+    void CCStoreEventDispatcher::onUnexpectedStoreError(cocos2d::CCInteger *errorCode, bool alsoPush) {
         CCDictionary *eventDict = CCDictionary::create();
-        eventDict->setObject(errorMessage, CCStoreConsts::DICT_ELEMENT_ERROR_MESSAGE);
+        eventDict->setObject(errorCode, CCStoreConsts::DICT_ELEMENT_ERROR_CODE);
         
-        CCNotificationCenter::sharedNotificationCenter()->postNotification(CCStoreConsts::EVENT_UNEXPECTED_ERROR_IN_STORE, eventDict);
+        CCNotificationCenter::sharedNotificationCenter()->postNotification(CCStoreConsts::EVENT_UNEXPECTED_STORE_ERROR, eventDict);
 
         if (alsoPush) {
-        #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS) || (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-            
+            #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS) || (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+                        
             CCDictionary *params = CCDictionary::create();
-            params->setObject(CCString::create("CCStoreEventDispatcher::pushOnUnexpectedErrorInStore"), "method");
-            params->setObject(errorMessage, "errorMessage");
+            params->setObject(CCString::create("CCStoreEventDispatcher::pushOnUnexpectedStoreError"), "method");
+            params->setObject(errorCode, "errorCode");
             CCNdkBridge::callNative (params, NULL);
             
-        #endif
+            #endif
         }
     }
 
@@ -489,12 +474,9 @@ namespace soomla {
             return;
         }
         CC_ASSERT(purchasableVirtualItem);
-        CCString *token = (CCString *)(parameters->objectForKey("token"));
         CCString *payload = (CCString *)(parameters->objectForKey("payload"));
-        CCString *originalJson = (CCString *)(parameters->objectForKey("originalJson"));
-        CCString *signature = (CCString *)(parameters->objectForKey("signature"));
-        CCString *userId = (CCString *)(parameters->objectForKey("userId"));
-        this->onMarketPurchase(purchasableVirtualItem, token, payload, originalJson, signature, userId);
+        CCDictionary *extraDict = (CCDictionary *)(parameters->objectForKey("extraInfo"));
+        this->onMarketPurchase(purchasableVirtualItem, payload, extraDict);
     }
 
     void CCStoreEventDispatcher::handle__EVENT_MARKET_PURCHASE_STARTED(cocos2d::CCDictionary *parameters) {
@@ -589,9 +571,9 @@ namespace soomla {
         this->onRestoreTransactionsStarted();
     }
 
-    void CCStoreEventDispatcher::handle__EVENT_UNEXPECTED_ERROR_IN_STORE(cocos2d::CCDictionary *parameters) {
-                    CCString *errorMessage = (CCString *)(parameters->objectForKey("errorMessage"));
-                    this->onUnexpectedErrorInStore(errorMessage);
+    void CCStoreEventDispatcher::handle__EVENT_ON_UNEXPECTED_STORE_ERROR(cocos2d::CCDictionary *parameters) {
+                    CCInteger *errorCode = (CCInteger *)(parameters->objectForKey("errorCode"));
+                    this->onUnexpectedStoreError(errorCode);
     }
 
     void CCStoreEventDispatcher::handle__EVENT_STORE_CONTROLLER_INITIALIZED(cocos2d::CCDictionary *parameters) {

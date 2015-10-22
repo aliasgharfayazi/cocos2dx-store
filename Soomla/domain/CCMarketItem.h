@@ -1,12 +1,12 @@
 /*
  Copyright (C) 2012-2014 Soomla Inc.
-
+ 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
-
+ 
  http://www.apache.org/licenses/LICENSE-2.0
-
+ 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,7 +35,7 @@ namespace soomla {
 	 */
     class CCMarketItem : public CCDomain {
         SL_SYNTHESIZE_RETAIN_WITH_DICT(cocos2d::CCString *, mProductId, ProductId, CCStoreConsts::JSON_MARKET_ITEM_PRODUCT_ID);
-        SL_SYNTHESIZE_DOUBLE_RETAIN_WITH_DICT(mPrice, Price, CCStoreConsts::JSON_MARKET_ITEM_PRICE);
+        SL_SYNTHESIZE_DOUBLE_RETAIN_WITH_DICT( mPrice, Price, CCStoreConsts::JSON_MARKET_ITEM_PRICE);
         SL_SYNTHESIZE_RETAIN_WITH_DICT(cocos2d::CCString *, mMarketPriceAndCurrency, MarketPriceAndCurrency, CCStoreConsts::JSON_MARKET_ITEM_MARKET_PRICE);
         SL_SYNTHESIZE_RETAIN_WITH_DICT(cocos2d::CCString *, mMarketTitle, MarketTitle, CCStoreConsts::JSON_MARKET_ITEM_MARKET_TITLE);
         SL_SYNTHESIZE_RETAIN_WITH_DICT(cocos2d::CCString *, mMarketDescription, MarketDescription, CCStoreConsts::JSON_MARKET_ITEM_MARKET_DESCRIPTION);
@@ -45,7 +45,7 @@ namespace soomla {
         // so int could be enough, if it's a problem need to replace Jansson
         SL_SYNTHESIZE_RETAIN_WITH_DICT(cocos2d::CCInteger *, mMarketPriceMicros, MarketPriceMicros, CCStoreConsts::JSON_MARKET_ITEM_MARKET_PRICE_MICROS);
     public:
-
+        
 
         CCMarketItem(): mProductId(NULL), mPrice(NULL), mMarketPriceAndCurrency(NULL), mMarketTitle(NULL), mMarketDescription(NULL),
             mMarketCurrencyCode(NULL), mMarketPriceMicros(NULL){};
@@ -61,7 +61,7 @@ namespace soomla {
 
 		/**
          Creates a `CCMarketItem` from a dictionary.
-         @param dict A dictionary containing keys for the item's product id
+         @param dict A dictionary containing keys for the item's product id,
                 and price.
          @return The Market item.
 		*/
